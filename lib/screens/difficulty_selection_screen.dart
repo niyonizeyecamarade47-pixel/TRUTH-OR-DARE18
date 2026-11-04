@@ -94,6 +94,7 @@ class _DifficultySelectionScreenState extends State<DifficultySelectionScreen> {
       DifficultyLevel.vanilla => Icons.icecream_rounded,
       DifficultyLevel.playful => Icons.sentiment_very_satisfied_rounded,
       DifficultyLevel.wild => Icons.local_fire_department_rounded,
+      DifficultyLevel.extreme => Icons.bolt_rounded,
       DifficultyLevel.couple => Icons.favorite_rounded,
     };
 
@@ -119,17 +120,18 @@ class _DifficultySelectionScreenState extends State<DifficultySelectionScreen> {
               ),
             ),
             child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  width: 48,
-                  height: 48,
+                  width: 44,
+                  height: 44,
                   decoration: BoxDecoration(
                     color: level.color.withOpacity(.15),
-                    borderRadius: BorderRadius.circular(15),
+                    borderRadius: BorderRadius.circular(14),
                   ),
                   child: Icon(icon, color: level.color),
                 ),
-                const SizedBox(width: 13),
+                const SizedBox(width: 12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -142,17 +144,19 @@ class _DifficultySelectionScreenState extends State<DifficultySelectionScreen> {
                           fontWeight: FontWeight.w800,
                         ),
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 6),
                       Text(
-                        _getTagline(level),
+                        _getDescription(level),
                         style: const TextStyle(
                           color: AppColors.muted,
                           fontSize: 12,
+                          height: 1.4,
                         ),
                       ),
                     ],
                   ),
                 ),
+                const SizedBox(width: 8),
                 Icon(
                   selected
                       ? Icons.check_circle_rounded
@@ -167,18 +171,24 @@ class _DifficultySelectionScreenState extends State<DifficultySelectionScreen> {
     );
   }
 
-  String _getTagline(DifficultyLevel level) => switch (level) {
-        DifficultyLevel.vanilla => 'Light & fun icebreakers',
-        DifficultyLevel.playful => 'Flirty & exciting prompts',
-        DifficultyLevel.wild => 'One tougher deck combining Wild and Extreme',
-        DifficultyLevel.couple => 'Deeper, more challenging partner questions',
+  String _getDescription(DifficultyLevel level) => switch (level) {
+        DifficultyLevel.vanilla =>
+          'Think this is the safe deck? Think again. The first "who would you fuck?" lands before round two — and everyone\'s already wet and hard. Every filthy story starts here… and you get to choose how dirty it ends.',
+        DifficultyLevel.playful =>
+          'Someone here has already pictured you naked. This is where you find out who. Strip on demand, grind laps, and spill secrets that make your friends squeeze their thighs together. The real question is — who\'ll be the first to lose their shirt… and what happens after?',
+        DifficultyLevel.wild =>
+          'Everyone\'s got a confession they\'d only make soaked and desperate. This deck drags them out. Who do you secretly want to fuck? What do you touch yourself thinking about? The answers will change the way everyone in this room looks at you — forever.',
+        DifficultyLevel.extreme =>
+          'We\'re not going to tell you what\'s on these cards. Some things you have to see for yourself. All you need to know: nothing is off-limits, nobody leaves clean, and the person you trust most in this room will be the one begging by the end of the night.',
+        DifficultyLevel.couple =>
+          'There are things you\'ve thought about doing to each other but never dared to say out loud. This deck says them for you — and dares you to do worse. By morning, no hole unexplored, no secret unsaid. The only question is… which one of you breaks first?',
       };
 
   Future<void> _startGame() async {
     if (_selected == DifficultyLevel.couple && widget.players.length != 2) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Couple Mode requires exactly two players.'),
+          content: Text('Couples Mode requires exactly two players.'),
         ),
       );
       return;
