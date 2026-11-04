@@ -5,7 +5,8 @@ A Flutter party game for adults featuring multilingual prompts, selectable game 
 ## Features
 
 - Four supported languages: English, French, Kinyarwanda, and Spanish.
-- Five categories: Vanilla, Playful, Wild, Extreme, and Couple.
+- Four categories: Vanilla, Playful, Wild & Extreme (combined), and Couple Mode.
+- Couple Mode includes deeper partner-focused conversation prompts and is designed for exactly two players.
 - Add and remove players, with frequently used names saved locally on the device.
 - Truth and dare prompts personalized with the current group of players.
 - A timed dare round and score updates for completed or skipped challenges.
@@ -34,7 +35,7 @@ flutter test
 ## How to play
 
 1. Add at least two players. Frequent player names are stored on this device and can be removed with the chip's close button.
-2. Choose a category and language, then start the game.
+2. Choose a category and language, then start the game. Couple Mode requires exactly two players.
 3. Players take turns choosing Truth or Dare. Anyone who chose Truth on their previous turn must choose Dare next.
 4. Dares have a 15-second countdown. Mark a challenge as done or skipped; an expired dare is treated as skipped.
 5. Completing a challenge awards 10 points. Skipping or timing out removes 5 points, but scores never fall below zero.
