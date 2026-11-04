@@ -22,55 +22,60 @@ class GameData {
     }
   }
 
-  /// Returns unmodified templates so runtime question processing can replace
-  /// every token using the selected player and current roster.
-  static List<String> getQuestions(
-    String lang,
-    String category,
-    String type,
-  ) {
+  /// Returns templates for the requested category. The combined Spicy & Wild
+  /// category draws from both existing localized decks.
+  static List<String> getQuestions(String lang, String category, String type) {
     final langData = _loadedDatabases[lang];
     if (langData == null) {
       print("DEBUG: Language '$lang' not found in cache. Using fallbacks.");
       return _getFallbackQuestions(type);
     }
 
-    String? matchedCategoryKey;
+    final requested = category.toLowerCase().replaceAll(RegExp(r'[^a-z]'), '');
+    final isSpicyWild = requested.contains('spicy') || requested == 'wild';
+    final isCouple = requested.contains('couple');
+    final matchingCategories = <String>[];
+
     for (final dynamic rawKey in langData.keys) {
       final key = rawKey.toString();
-      if (key.toLowerCase().contains(category.toLowerCase()) ||
-          category.toLowerCase().contains(key.toLowerCase())) {
-        matchedCategoryKey = key;
-        break;
-      }
+      final normalizedKey = key.toLowerCase().replaceAll(RegExp(r'[^a-z]'), '');
+      final matches = isSpicyWild
+          ? normalizedKey.contains('spicy') || normalizedKey.contains('wild')
+          : isCouple
+              ? normalizedKey.contains('couple')
+              : normalizedKey == requested ||
+                  normalizedKey.contains(requested) ||
+                  requested.contains(normalizedKey);
+      if (matches) matchingCategories.add(key);
     }
 
-    if (matchedCategoryKey == null) {
+    if (matchingCategories.isEmpty) {
       print("DEBUG: Category '$category' not found in lang '$lang'. Available: ${langData.keys}");
       return _getFallbackQuestions(type);
     }
 
-    final categoryData = langData[matchedCategoryKey];
-    if (categoryData is! Map) return _getFallbackQuestions(type);
+    final questions = <String>[];
+    for (final categoryKey in matchingCategories) {
+      final categoryData = langData[categoryKey];
+      if (categoryData is! Map) continue;
 
-    String? matchedTypeKey;
-    for (final dynamic rawKey in categoryData.keys) {
-      final key = rawKey.toString();
-      if (key.toLowerCase().contains(type.toLowerCase()) ||
-          type.toLowerCase().contains(key.toLowerCase())) {
-        matchedTypeKey = key;
-        break;
+      String? matchedTypeKey;
+      for (final dynamic rawKey in categoryData.keys) {
+        final key = rawKey.toString();
+        if (key.toLowerCase().contains(type.toLowerCase()) ||
+            type.toLowerCase().contains(key.toLowerCase())) {
+          matchedTypeKey = key;
+          break;
+        }
+      }
+
+      final rawList = matchedTypeKey == null ? null : categoryData[matchedTypeKey];
+      if (rawList is List) {
+        questions.addAll(rawList.map((question) => question.toString()));
       }
     }
 
-    if (matchedTypeKey == null) {
-      print("DEBUG: Type '$type' not found under category '$matchedCategoryKey'. Available: ${categoryData.keys}");
-      return _getFallbackQuestions(type);
-    }
-
-    final rawList = categoryData[matchedTypeKey];
-    if (rawList is! List || rawList.isEmpty) return _getFallbackQuestions(type);
-    return rawList.map((question) => question.toString()).toList();
+    return questions.isEmpty ? _getFallbackQuestions(type) : questions;
   }
 
   /// Emergency templates still use the same runtime placeholder pipeline.
