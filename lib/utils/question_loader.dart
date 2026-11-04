@@ -8,6 +8,7 @@ class QuestionLoader {
   static final Map<Player, String> _lastChoices = {};
   static final Map<Player, Player> _partners = {};
   static final Random _random = Random();
+  static bool _coupleMode = false;
 
   /// Registers a preferred partner. Runtime matching still validates that the
   /// partner is another player and prefers an opposite-gender match.
@@ -27,6 +28,7 @@ class QuestionLoader {
     final normalizedLang = _normalizeLanguage(langKey);
     final chosenType = type.toLowerCase();
     final chosenCategory = category.toLowerCase();
+    _coupleMode = chosenCategory.contains('couple');
 
     // Preserve the existing rule for callers that load questions for a player.
     if (currentPlayer != null) {
@@ -76,6 +78,10 @@ class QuestionLoader {
     final others = _otherPlayers(currentPlayer, players);
     if (others.isEmpty) return null;
 
+    // Couple Mode is a two-player mode, so every partner token resolves to
+    // the other member of the couple rather than a random/opposite-gender pick.
+    if (_coupleMode) return others.first;
+
     final assigned = currentPlayer == null ? null : _partners[currentPlayer];
     final validAssigned = assigned != null &&
         others.any((player) => player.id == assigned.id);
@@ -118,9 +124,7 @@ class QuestionLoader {
   }
 
   /// Replaces all supported question tokens using players from the current
-  /// round. `{partner}` and `{target}` share the opposite-gender-preferred
-  /// target; if no opposite-gender player is available, any other player is
-  /// eligible. Gender-specific tokens fall back to that target when needed.
+  /// round. In Couple Mode, the only other player is always the partner.
   static String processQuestionText(
     String text, [
     Player? currentPlayer,
@@ -134,9 +138,11 @@ class QuestionLoader {
     final explicitOtherPlayer = otherPlayerOrPlayers is String
         ? otherPlayerOrPlayers
         : null;
-    final otherPlayerName = explicitOtherPlayer ?? _chooseRandom(others)?.name ?? 'someone';
     final target = _chooseTarget(currentPlayer, players);
     final targetName = target?.name ?? explicitOtherPlayer ?? 'someone';
+    final otherPlayerName = _coupleMode
+        ? targetName
+        : explicitOtherPlayer ?? _chooseRandom(others)?.name ?? 'someone';
     final partnerName = targetName;
     final maleName = _chooseGenderName(
       'male',
