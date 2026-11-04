@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-/// The selectable prompt categories. Wild and Spicy share one combined deck.
-enum DifficultyLevel { vanilla, playful, wild, extreme, couple }
+/// The selectable prompt categories. Wild and Extreme share one deck.
+enum DifficultyLevel { vanilla, playful, wild, couple }
 
 extension DifficultyLevelExtension on DifficultyLevel {
   String get displayName {
@@ -11,9 +11,7 @@ extension DifficultyLevelExtension on DifficultyLevel {
       case DifficultyLevel.playful:
         return 'Playful';
       case DifficultyLevel.wild:
-        return 'Spicy & Wild';
-      case DifficultyLevel.extreme:
-        return 'Extreme';
+        return 'Wild & Extreme';
       case DifficultyLevel.couple:
         return 'Couple Mode';
     }
@@ -29,8 +27,6 @@ extension DifficultyLevelExtension on DifficultyLevel {
         return const Color(0xFF00FF80);
       case DifficultyLevel.wild:
         return const Color(0xFFFF8000);
-      case DifficultyLevel.extreme:
-        return const Color(0xFFFF0000);
       case DifficultyLevel.couple:
         return const Color(0xFFFF00FF);
     }
@@ -38,7 +34,10 @@ extension DifficultyLevelExtension on DifficultyLevel {
 
   static DifficultyLevel fromString(String value) {
     final normalized = value.toLowerCase().replaceAll(RegExp(r'[^a-z]'), '');
-    if (normalized == 'spicy' || normalized == 'wild' || normalized == 'spicywild') {
+    if (normalized == 'wild' || normalized == 'extreme' || normalized == 'wildextreme') {
+      return DifficultyLevel.wild;
+    }
+    if (normalized == 'spicy' || normalized == 'spicywild') {
       return DifficultyLevel.wild;
     }
     for (final level in DifficultyLevel.values) {
