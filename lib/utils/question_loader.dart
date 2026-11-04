@@ -8,6 +8,7 @@ class QuestionLoader {
   static final Map<Player, String> _lastChoices = {};
   static final Map<Player, Player> _partners = {};
   static final Random _random = Random();
+  static final Set<String> _shownQuestionKeys = <String>{};
   static bool _coupleMode = false;
 
   /// Registers a preferred partner. Runtime matching still validates that the
@@ -56,6 +57,23 @@ class QuestionLoader {
       );
     });
   }
+
+  /// Selects and reserves a prompt for the lifetime of this app process.
+  /// The set is intentionally static and never reset between games; it clears
+  /// naturally when the app process is closed/restarted.
+  static Question? chooseUnseenQuestion(List<Question> questions) {
+    final unseen = questions
+        .where((question) => !_shownQuestionKeys.contains(_questionKey(question)))
+        .toList();
+    if (unseen.isEmpty) return null;
+
+    final selected = unseen[_random.nextInt(unseen.length)];
+    _shownQuestionKeys.add(_questionKey(selected));
+    return selected;
+  }
+
+  static String _questionKey(Question question) =>
+      question.text.trim().toLowerCase().replaceAll(RegExp(r'\s+'), ' ');
 
   static String _normalizeLanguage(String langKey) {
     final lowerKey = langKey.toLowerCase();
